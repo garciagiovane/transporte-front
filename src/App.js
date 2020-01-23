@@ -1,17 +1,14 @@
 import React, { Component } from 'react';
 import './App.css';
 import { Link } from 'react-router-dom';
-
-const Header = (props) => {
-  return (<h1>{props.message}</h1>)
-}
+import Header from './components/Header';
 
 class App extends Component {
 
   render() {
     return (
       <div>
-        <Header message='BusPoa' />
+        <Header />
         <div>
           <Link to={'/local-lines'}>Procurar linhas próximas</Link>
         </div>

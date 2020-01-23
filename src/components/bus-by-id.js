@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
+import Header from "./Header";
 
 const DisplayErrors = (props) => {
     return (
@@ -15,17 +15,18 @@ const DisplayErrors = (props) => {
 const DisplayContent = (props) => {
     return (
         <div>
-            {props.line}
+            Linha: {props.line.name}, código: {props.line.code}
         </div>
     )
 }
 
 const HandleResponse = (props) => {
-    if (props.errors) {
+    if (props.errors.length > 0) {
         return <DisplayErrors errors={props.errors} />
     } else if (props.line) {
         return <DisplayContent line={props.line} />
     }
+    return null;
 }
 
 class BusById extends Component {
@@ -35,7 +36,7 @@ class BusById extends Component {
         this.state = {
             codigoLinha: '',
             errors: [],
-            line: {}
+            line: undefined
         }
 
         this.handleChange = this.handleChange.bind(this)
@@ -70,7 +71,7 @@ class BusById extends Component {
     render() {
         return (
             <div>
-                <Link to='/'>Home</Link>
+                <Header />
                 <h1>Pelo ID</h1>
                 <form onSubmit={this.handleSubmit}>
                     <div>

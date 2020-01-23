@@ -1,17 +1,31 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
+import Header from "./Header";
 
-const ShowBusList = (props) => {
-    var buslines = props.buslines
-    if (buslines.length) {
-        return (
+const DisplayContent = (props) => {
+    return (
+        <ul>
+            {props.buslines.map(busLine => <li key={busLine.id}>{busLine.name}</li>)}
+        </ul>
+    )
+}
+
+const DisplayErrors = (props) => {
+    return (
+        <div>
             <ul>
-                {buslines.map(busLine => <li key={busLine.id}>{busLine.name}</li>)}
+                {props.errors.map(error => <li key={props.errors.indexOf(error)}>{error.message}</li>)}
             </ul>
-        )
+        </div>
+    )
+}
+
+const HandleResponse = (props) => {
+    if (props.errors.length > 0) {
+        return <DisplayErrors errors={props.errors} />
+    } else if (props.buslines) {
+        return <DisplayContent buslines={props.buslines} />
     }
-    return <h2>Nenhuma linha encontrada</h2>
 }
 
 export class Home extends Component {
@@ -21,7 +35,8 @@ export class Home extends Component {
         this.state = {
             latitude: '',
             longitude: '',
-            buslines: []
+            buslines: [],
+            errors: []
         }
 
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -38,7 +53,13 @@ export class Home extends Component {
                     buslines: response.data.content
                 })
             })
-            .catch(error => console.error('Erro na request: ' + error))
+            .catch(error => {
+                if (error.response) {
+                    this.setState({
+                        errors: error.response.data.errors
+                    })
+                }
+            })
         event.preventDefault()
     }
 
@@ -55,9 +76,7 @@ export class Home extends Component {
     render() {
         return (
             <div>
-                <div>
-                    <Link to={'/'}>Back</Link>
-                </div>
+                <Header />
                 <div>
                     <form onSubmit={this.handleSubmit}>
                         <div>
@@ -74,7 +93,7 @@ export class Home extends Component {
                     </form>
                 </div>
                 <div>
-                    <ShowBusList buslines={this.state.buslines} />
+                    <HandleResponse errors={this.state.errors} buslines={this.state.buslines} />
                 </div>
             </div>
         )
