@@ -1,13 +1,27 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+
+const ShowBusList = (props) => {
+    var buslines = props.buslines
+    if (buslines.length) {
+        return (
+            <ul>
+                {buslines.map(busLine => <li key={busLine.id}>{busLine.name}</li>)}
+            </ul>
+        )
+    }
+    return <h2>Nenhuma linha encontrada</h2>
+}
 
 export class Home extends Component {
     constructor() {
         super()
 
         this.state = {
-            latitude: 0,
-            longitude: 0
+            latitude: '',
+            longitude: '',
+            buslines: []
         }
 
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -15,8 +29,17 @@ export class Home extends Component {
     }
 
     handleSubmit(event) {
-        console.log(this.state.latitude)
-        console.log(this.state.longitude)
+        axios.get(
+            'http://127.0.0.1:8080/v2/lines/local?latitude='
+            + this.state.latitude
+            + '&longitude=' + this.state.longitude)
+            .then(response => {
+                this.setState({
+                    buslines: response.data.content
+                })
+            })
+            .catch(error => console.error('Erro na request: ' + error))
+        event.preventDefault()
     }
 
     handleChange(event) {
@@ -39,16 +62,19 @@ export class Home extends Component {
                     <form onSubmit={this.handleSubmit}>
                         <div>
                             <label>
-                                Latitude: <input type='text' onBlur={this.handleChange} /*value={this.state.latitude}*/ name='latitude' placeholder='Latitude'></input>
+                                Latitude: <input type='text' onChange={this.handleChange} value={this.state.latitude} name='latitude' placeholder='Latitude'></input>
                             </label>
                         </div>
                         <div>
                             <label>
-                                Longitude: <input type='text' onBlur={this.handleChange} /*value={this.state.longitude}*/ name='longitude' placeholder='longitude'></input>
+                                Longitude: <input type='text' onChange={this.handleChange} value={this.state.longitude} name='longitude' placeholder='longitude'></input>
                             </label>
                         </div>
                         <input type='submit' value='Enviar'></input>
                     </form>
+                </div>
+                <div>
+                    <ShowBusList buslines={this.state.buslines} />
                 </div>
             </div>
         )
